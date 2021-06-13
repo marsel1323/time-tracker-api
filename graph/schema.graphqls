@@ -1,0 +1,62 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+scalar Time
+
+type Category {
+    id: Int!
+    name: String!
+
+    totalTime: Int!
+    todayTime: Int!
+}
+
+type Task {
+    id: Int!
+    name: String!
+    categoryId: Int!
+    createdAt: Time
+    updatedAt: Time
+    totalMs: Int
+    totalToday: Int
+    totalTimeFor(day: String!): Int!
+    totalTimeForLast(days: Int!, hours: Int!): Int!
+    lastStat: Statistic
+}
+
+type Statistic {
+    id: Int!
+    taskId: Int!
+    milliseconds: Int!
+    createdAt: Time
+    updatedAt: Time
+}
+
+type Query {
+    categoriesList: [Category!]!
+    taskListByCategory(categoryId: Int!): [Task!]!
+    taskList: [Task!]!
+    task(id: Int!): Task!
+
+    statListByDate(date: String!): [Statistic!]!
+}
+
+input NewCategory {
+    name: String!
+}
+
+input NewTask {
+    name: String!
+    categoryId: Int!
+}
+
+input NewStatistic {
+    ms: Int!
+    taskId: Int!
+}
+
+type Mutation {
+    createCategory(input: NewCategory!): Category!
+    createTask(input: NewTask!): Task!
+    createStat(input: NewStatistic!): Statistic!
+}

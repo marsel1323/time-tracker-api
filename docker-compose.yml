@@ -1,0 +1,51 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=timetracker
+      - DATABASE_HOST=postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
+    networks:
+      new:
+        aliases:
+          - database
+
+  migrate:
+    image: migrate/migrate
+    restart: on-failure
+    networks:
+      - new
+    volumes:
+      - ./migrations:/migrations
+    depends_on:
+      - db
+    command: [ "-path", "/migrations", "-verbose", "-database",  "postgres://user:password@db:5432/timetracker?sslmode=disable", "up" ]
+    links:
+      - db
+
+  app:
+    container_name: timetrackerapi
+    build: .
+    restart: on-failure
+    depends_on:
+      - db
+    networks:
+      - new
+    ports:
+      - '8080:8080'
+    volumes:
+      - api:/usr/src/app
+
+volumes:
+  api:
+  postgres_db:
+
+networks:
+  new:
