@@ -42,6 +42,9 @@ services:
       - '8080:8080'
     volumes:
       - api:/usr/src/app
+    environment:
+      - VIRTUAL_HOST=timetrackerapi.ru
+      - LETSENCRYPT_HOST=timetrackerapi.ru
 
 volumes:
   api:
