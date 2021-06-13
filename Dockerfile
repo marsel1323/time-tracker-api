@@ -33,7 +33,7 @@ COPY --from=builder /app/migrations /migrations
 #COPY --from=builder /app/.env .
 
 # Expose port 8080 to the outside world
-EXPOSE 8080
+EXPOSE 80
 
 #Command to run the executable
-CMD ["./main", "-port=8080", "-env=production", "-db-dsn=postgres://user:password@db/timetracker?sslmode=disable"]
+CMD ["./main", "-port=80", "-env=production", "-db-dsn=postgres://user:password@db/timetracker?sslmode=disable"]

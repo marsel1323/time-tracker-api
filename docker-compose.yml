@@ -39,7 +39,7 @@ services:
     networks:
       - new
     ports:
-      - '8080:8080'
+      - '80:80'
     volumes:
       - api:/usr/src/app
     environment:
