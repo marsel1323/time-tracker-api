@@ -1,5 +1,6 @@
 version: "3.8"
 services:
+
   db:
     image: postgres:latest
     restart: always
@@ -14,8 +15,6 @@ services:
       - postgres_db:/var/lib/postgresql/data
     networks:
       new:
-        aliases:
-          - database
 
   migrate:
     image: migrate/migrate
@@ -39,7 +38,7 @@ services:
     networks:
       - new
     ports:
-      - '80:80'
+      - '8080:8080'
     volumes:
       - api:/usr/src/app
     environment:
