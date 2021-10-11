@@ -212,54 +212,11 @@ CREATE TABLE public.task (
     name text NOT NULL,
     created_at timestamp(0) with time zone DEFAULT now() NOT NULL,
     updated_at timestamp(0) with time zone DEFAULT now() NOT NULL,
-    category_id bigint NOT NULL,
     done boolean DEFAULT false
 );
 
 
 ALTER TABLE public.task OWNER TO time_tracker;
-
---
--- Name: task_category_id_seq; Type: SEQUENCE; Schema: public; Owner: time_tracker
---
-
-CREATE SEQUENCE public.task_category_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.task_category_id_seq OWNER TO time_tracker;
-
---
--- Name: task_category_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: time_tracker
---
-
-ALTER SEQUENCE public.task_category_id_seq OWNED BY public.task.category_id;
-
-
---
--- Name: task_category_id_seq1; Type: SEQUENCE; Schema: public; Owner: time_tracker
---
-
-CREATE SEQUENCE public.task_category_id_seq1
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.task_category_id_seq1 OWNER TO time_tracker;
-
---
--- Name: task_category_id_seq1; Type: SEQUENCE OWNED BY; Schema: public; Owner: time_tracker
---
-
-ALTER SEQUENCE public.task_category_id_seq1 OWNED BY public.task.category_id;
-
 
 --
 -- Name: task_id_seq; Type: SEQUENCE; Schema: public; Owner: time_tracker
@@ -315,13 +272,6 @@ ALTER TABLE ONLY public.stats ALTER COLUMN id SET DEFAULT nextval('public.stats_
 --
 
 ALTER TABLE ONLY public.task ALTER COLUMN id SET DEFAULT nextval('public.task_id_seq'::regclass);
-
-
---
--- Name: task category_id; Type: DEFAULT; Schema: public; Owner: time_tracker
---
-
-ALTER TABLE ONLY public.task ALTER COLUMN category_id SET DEFAULT nextval('public.task_category_id_seq'::regclass);
 
 
 --
@@ -417,22 +367,6 @@ ALTER TABLE ONLY public.goals
 
 ALTER TABLE ONLY public.stats
     ADD CONSTRAINT stats_task_id_fkey FOREIGN KEY (task_id) REFERENCES public.task(id) ON DELETE CASCADE;
-
-
---
--- Name: task task_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: time_tracker
---
-
-ALTER TABLE ONLY public.task
-    ADD CONSTRAINT task_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(id);
-
-
---
--- Name: task task_category_id_fkey1; Type: FK CONSTRAINT; Schema: public; Owner: time_tracker
---
-
-ALTER TABLE ONLY public.task
-    ADD CONSTRAINT task_category_id_fkey1 FOREIGN KEY (category_id) REFERENCES public.categories(id);
 
 
 --

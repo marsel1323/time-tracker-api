@@ -43,7 +43,7 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 }
 
 func (r *mutationResolver) CreateTaskStatistic(ctx context.Context, input model.NewTaskStatistic) (*model.TaskStatistic, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.statisticService.CreateStat(input)
 }
 
 func (r *mutationResolver) CreateGoal(ctx context.Context, input model.NewGoal) (*model.Goal, error) {
