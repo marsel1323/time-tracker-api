@@ -7,30 +7,30 @@ import (
 )
 
 type IStatisticService interface {
-	CreateStat(input model.NewStatistic) (*model.Statistic, error)
-	StatList() ([]*model.Statistic, error)
-	StatListByDate(date string) ([]*model.Statistic, error)
-	GetStat(id int) (*model.Statistic, error)
+	CreateStat(input model.NewTaskStatistic) (*model.TaskStatistic, error)
+	StatList() ([]*model.TaskStatistic, error)
+	StatListByDate(date string) ([]*model.TaskStatistic, error)
+	GetStat(id int) (*model.TaskStatistic, error)
 
 	CalcTotalTime(taskId int) (*int, error)
 	CalcTotalTodayTime(taskID int) (*int, error)
 	CalcTotalTimeFor(taskId int, days int, hours int) (int, error)
-	LastStatRecord(taskId int) (*model.Statistic, error)
+	LastStatRecord(taskId int) (*model.TaskStatistic, error)
 	TotalTimeFor(taskId int, day string) (int, error)
 }
 
 type StatisticService struct {
-	repo repository.IStatisticRepository
+	repo repository.StatisticRepository
 }
 
-func NewStatisticService(repo repository.IStatisticRepository) *StatisticService {
+func NewStatisticService(repo repository.StatisticRepository) *StatisticService {
 	return &StatisticService{
 		repo: repo,
 	}
 }
 
-func (s *StatisticService) CreateStat(input model.NewStatistic) (*model.Statistic, error) {
-	newStat := model.Statistic{
+func (s *StatisticService) CreateStat(input model.NewTaskStatistic) (*model.TaskStatistic, error) {
+	newStat := model.TaskStatistic{
 		Milliseconds: input.Ms,
 		TaskID:       input.TaskID,
 	}
@@ -38,18 +38,18 @@ func (s *StatisticService) CreateStat(input model.NewStatistic) (*model.Statisti
 	return s.repo.Create(newStat)
 }
 
-func (s *StatisticService) StatList() ([]*model.Statistic, error) {
+func (s *StatisticService) StatList() ([]*model.TaskStatistic, error) {
 	return s.repo.List()
 }
 
-func (s *StatisticService) StatListByDate(date string) ([]*model.Statistic, error) {
+func (s *StatisticService) StatListByDate(date string) ([]*model.TaskStatistic, error) {
 	if date == "" {
 		date = time.Now().Format("2006-01-02")
 	}
 	return s.repo.ListByDate(date)
 }
 
-func (s *StatisticService) GetStat(id int) (*model.Statistic, error) {
+func (s *StatisticService) GetStat(id int) (*model.TaskStatistic, error) {
 	return s.repo.Get(id)
 }
 
@@ -65,7 +65,7 @@ func (s *StatisticService) CalcTotalTimeFor(taskId int, days int, hours int) (in
 	return s.repo.TaskTotalTimeFor(taskId, days, hours)
 }
 
-func (s *StatisticService) LastStatRecord(taskId int) (*model.Statistic, error) {
+func (s *StatisticService) LastStatRecord(taskId int) (*model.TaskStatistic, error) {
 	return s.repo.LastRecord(taskId)
 }
 

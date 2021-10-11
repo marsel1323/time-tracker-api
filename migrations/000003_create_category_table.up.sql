@@ -6,15 +6,15 @@ CREATE TABLE IF NOT EXISTS categories
     updated_at timestamp(0) with time zone NOT NULL DEFAULT NOW()
 );
 
-INSERT INTO categories (name)
-VALUES ('development'),
-       ('job'),
-       ('sport'),
-       ('gaming'),
-       ('english'),
-       ('reading'),
-       ('drawing'),
-       ('3d'),
-       ('bad habits'),
-       ('house cleaning'),
-       ('guitar');
+-- INSERT INTO categories (name)
+-- VALUES ('development'),
+--        ('job'),
+--        ('sport'),
+--        ('gaming'),
+--        ('english'),
+--        ('reading'),
+--        ('drawing'),
+--        ('3d'),
+--        ('bad habits'),
+--        ('house cleaning'),
+--        ('guitar');

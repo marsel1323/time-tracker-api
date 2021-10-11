@@ -14,10 +14,10 @@ type ICategoryService interface {
 }
 
 type CategoryService struct {
-	repo repository.ICategoryRepository
+	repo repository.CategoryRepository
 }
 
-func NewCategoryService(repo repository.ICategoryRepository) *CategoryService {
+func NewCategoryService(repo repository.CategoryRepository) *CategoryService {
 	return &CategoryService{
 		repo: repo,
 	}

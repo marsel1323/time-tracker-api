@@ -14,17 +14,17 @@ type Category {
 type Task {
     id: Int!
     name: String!
-    categoryId: Int!
     createdAt: Time
     updatedAt: Time
+
     totalMs: Int
     totalToday: Int
     totalTimeFor(day: String!): Int!
     totalTimeForLast(days: Int!, hours: Int!): Int!
-    lastStat: Statistic
+    lastStat: TaskStatistic
 }
 
-type Statistic {
+type TaskStatistic {
     id: Int!
     taskId: Int!
     milliseconds: Int!
@@ -32,13 +32,36 @@ type Statistic {
     updatedAt: Time
 }
 
+type Goal {
+    id: Int!
+    name: String!
+    time: Int!
+    categoryId: Int!
+    createdAt: Time
+    updatedAt: Time
+
+    todayMs: Int!
+}
+
+type GoalStatistic {
+    id: Int!
+    goalId: Int!
+    milliseconds: Int!
+    createdAt: Time
+    updatedAt: Time
+}
+
 type Query {
     categoriesList: [Category!]!
-    taskListByCategory(categoryId: Int!): [Task!]!
-    taskList: [Task!]!
-    task(id: Int!): Task!
 
-    statListByDate(date: String!): [Statistic!]!
+    task(id: Int!): Task!
+    taskList: [Task!]!
+    taskListByCategory(categoryId: Int!): [Task!]!
+
+    goal(id: Int!): Goal!
+    goalList: [Goal!]!
+
+    statListByDate(date: String!): [TaskStatistic!]!
 }
 
 input NewCategory {
@@ -47,16 +70,22 @@ input NewCategory {
 
 input NewTask {
     name: String!
-    categoryId: Int!
 }
 
-input NewStatistic {
-    ms: Int!
+input NewTaskStatistic {
     taskId: Int!
+    ms: Int!
+}
+
+input NewGoal {
+    name: String!
+    categoryId: Int!
+    time: Int!
 }
 
 type Mutation {
     createCategory(input: NewCategory!): Category!
     createTask(input: NewTask!): Task!
-    createStat(input: NewStatistic!): Statistic!
+    createTaskStatistic(input: NewTaskStatistic!): TaskStatistic!
+    createGoal(input: NewGoal!): Goal!
 }

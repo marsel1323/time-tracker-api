@@ -5,8 +5,14 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
+	"github.com/markbates/goth"
+	"github.com/markbates/goth/gothic"
+	"github.com/markbates/goth/providers/google"
 	"github.com/marsel1323/timetrackerapi/graph"
 	"github.com/marsel1323/timetrackerapi/graph/generated"
 	"github.com/marsel1323/timetrackerapi/repository"
@@ -41,7 +47,6 @@ func middleware(next http.Handler) http.Handler {
 			fmt.Println("Token is absent")
 			//next.ServeHTTP(w, r)
 			http.Error(w, "API key absent", http.StatusUnauthorized)
-			//json.NewEncoder(w).Encode("error")
 			return
 		}
 
@@ -60,9 +65,10 @@ func main() {
 	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-conns", 25, "PostgreSQL max idle connections")
 	flag.StringVar(&cfg.db.maxIdleTime, "db-max-idle-time", "15m", "PostgreSQL max connection idle time")
 	flag.Parse()
-	fmt.Println(cfg)
+
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
+	// DB
 	db, err := openDB(cfg)
 	if err != nil {
 		logger.Fatal(err)
@@ -70,9 +76,32 @@ func main() {
 	defer db.Close()
 	logger.Printf("Database connection pool established")
 
+	// GOTHIC
+	var clientID = "55044703536-rh9ajuq0q14f5n12otadfaa3dobsvr9a.apps.googleusercontent.com"
+	var clientSecret = "LXAbveh77fTbZaCaNcvwGuZ_"
+
+	goth.UseProviders(
+		google.New(
+			clientID,
+			clientSecret,
+			"http://localhost:8080/auth/google/callback",
+		),
+	)
+
+	store := sessions.NewCookieStore([]byte(""))
+	store.MaxAge(86400 * 30)
+	store.Options.Path = "/"
+	store.Options.HttpOnly = true // HttpOnly should always be enabled
+	store.Options.Secure = false
+
+	gothic.Store = store
+
+	// SERVICES
 	taskService := service.NewTaskService(repository.NewTaskRepository(db))
 	statisticService := service.NewStatisticService(repository.NewStatisticRepository(db))
 	categoryService := service.NewCategoryService(repository.NewCategoryRepository(db))
+	goalService := service.NewGoalService(repository.NewGoalRepository(db))
+	goalStatisticService := service.NewGoalStatisticService(repository.NewGoalStatisticRepository(db))
 
 	srv := handler.NewDefaultServer(
 		generated.NewExecutableSchema(
@@ -81,75 +110,61 @@ func main() {
 					taskService,
 					statisticService,
 					categoryService,
+					goalService,
+					goalStatisticService,
 				),
 			},
 		),
 	)
 
-	//var clientID = "55044703536-rh9ajuq0q14f5n12otadfaa3dobsvr9a.apps.googleusercontent.com"
-	//var clientSecret = "LXAbveh77fTbZaCaNcvwGuZ_"
-	//
-	//goth.UseProviders(
-	//	google.New(clientID, clientSecret, "http://localhost:8080/auth/google/callback"),
-	//)
+	srv.AroundOperations(func(ctx context.Context, next graphql.OperationHandler) graphql.ResponseHandler {
+		//fmt.Println(ctx)
+		return next(ctx)
+	})
 
-	//store := sessions.NewCookieStore([]byte(""))
-	//store.MaxAge(86400 * 30)
-	//store.Options.Path = "/"
-	//store.Options.HttpOnly = true // HttpOnly should always be enabled
-	//store.Options.Secure = false
+	router := mux.NewRouter()
 
-	//gothic.Store = store
+	router.HandleFunc("/auth/{provider}/callback", func(w http.ResponseWriter, r *http.Request) {
+		user, err := gothic.CompleteUserAuth(w, r)
+		if err != nil {
+			fmt.Fprintln(w, err)
+			return
+		}
+		fmt.Fprintln(w, user)
+	})
 
-	//router := mux.NewRouter()
+	router.HandleFunc("/auth/{provider}", func(w http.ResponseWriter, r *http.Request) {
+		gothUser, err := gothic.CompleteUserAuth(w, r)
+		if err == nil {
+			fmt.Fprintln(w, fmt.Sprintln("Zdarova: ", gothUser))
+		} else {
+			gothic.BeginAuthHandler(w, r)
+		}
+	})
 
-	//router.HandleFunc("/auth/{provider}/callback", func(w http.ResponseWriter, r *http.Request) {
-	//	user, err := gothic.CompleteUserAuth(w, r)
-	//	if err != nil {
-	//		fmt.Fprintln(w, err)
-	//		return
-	//	}
-	//	fmt.Fprintln(w, user)
-	//})
-	//router.HandleFunc("/auth/{provider}", func(w http.ResponseWriter, r *http.Request) {
-	//	gothUser, err := gothic.CompleteUserAuth(w, r)
-	//	if err == nil {
-	//		fmt.Fprintln(w, fmt.Sprintln("Zdarova: ", gothUser))
-	//	} else {
-	//		gothic.BeginAuthHandler(w, r)
-	//	}
-	//})
+	//router.Use(middleware)
 
-	//http.Handle("/", router)
-	//http.ListenAndServe(":8080", nil)
+	router.Use(cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:8080"},
+		AllowCredentials: true,
+		Debug:            false,
+	}).Handler)
 
-	mux := http.NewServeMux()
-
-	//mux.Handle("/auth/google/callback", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	//	user, err := gothic.CompleteUserAuth(w, r)
-	//	if err != nil {
-	//		fmt.Fprintln(w, err)
-	//		return
-	//	}
-	//	fmt.Fprintln(w, user)
-	//}))
-	//mux.Handle("/auth/google", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	//	gothUser, err := gothic.CompleteUserAuth(w, r)
-	//	if err == nil {
-	//		fmt.Fprintln(w, fmt.Sprintln("Zdarova: ", gothUser))
-	//	} else {
-	//		gothic.BeginAuthHandler(w, r)
-	//	}
-	//
-	//}))
-
-	mux.Handle("/graphql", playground.Handler("GraphQL playground", "/query"))
-	mux.Handle("/query", middleware(srv))
+	router.Handle(
+		"/graphql",
+		playground.Handler("GraphQL playground", "/query"),
+	)
+	router.Handle("/query", srv)
 
 	log.Printf("connect to http://localhost:%d/ for GraphQL playground", cfg.port)
 
-	handler := cors.Default().Handler(mux)
-	http.ListenAndServe(fmt.Sprintf(":%d", cfg.port), handler)
+	err = http.ListenAndServe(
+		fmt.Sprintf(":%d", cfg.port),
+		router,
+	)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func openDB(cfg config) (*sql.DB, error) {

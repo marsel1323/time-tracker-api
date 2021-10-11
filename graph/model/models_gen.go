@@ -6,12 +6,17 @@ type NewCategory struct {
 	Name string `json:"name"`
 }
 
-type NewStatistic struct {
-	Ms     int `json:"ms"`
-	TaskID int `json:"taskId"`
+type NewGoal struct {
+	Name       string `json:"name"`
+	CategoryID int    `json:"categoryId"`
+	Time       int    `json:"time"`
 }
 
 type NewTask struct {
-	Name       string `json:"name"`
-	CategoryID int    `json:"categoryId"`
+	Name string `json:"name"`
+}
+
+type NewTaskStatistic struct {
+	TaskID int `json:"taskId"`
+	Ms     int `json:"ms"`
 }

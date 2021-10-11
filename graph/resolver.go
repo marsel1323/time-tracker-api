@@ -6,19 +6,25 @@ import (
 )
 
 type Resolver struct {
-	taskService      service.ITaskService
+	taskService      service.TaskService
 	statisticService service.IStatisticService
 	categoryService  service.ICategoryService
+	goalService      service.GoalService
+	goalStatisticService service.GoalStatisticService
 }
 
 func NewResolver(
-	taskService service.ITaskService,
+	taskService service.TaskService,
 	statisticService service.IStatisticService,
 	categoryService service.ICategoryService,
+	goalService service.GoalService,
+	goalStatisticService service.GoalStatisticService,
 ) *Resolver {
 	return &Resolver{
 		taskService:      taskService,
 		statisticService: statisticService,
 		categoryService:  categoryService,
+		goalService:      goalService,
+		goalStatisticService: goalStatisticService,
 	}
 }

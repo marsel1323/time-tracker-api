@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/marsel1323/timetrackerapi/graph/generated"
 	"github.com/marsel1323/timetrackerapi/graph/model"
@@ -29,6 +30,10 @@ func (r *categoryResolver) TodayTime(ctx context.Context, obj *model.Category) (
 	return result, nil
 }
 
+func (r *goalResolver) TodayMs(ctx context.Context, obj *model.Goal) (int, error) {
+	return r.goalStatisticService.TodayTime(obj.ID)
+}
+
 func (r *mutationResolver) CreateCategory(ctx context.Context, input model.NewCategory) (*model.Category, error) {
 	return r.categoryService.CreateCategory(input)
 }
@@ -37,27 +42,39 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 	return r.taskService.CreateTask(&input)
 }
 
-func (r *mutationResolver) CreateStat(ctx context.Context, input model.NewStatistic) (*model.Statistic, error) {
-	return r.statisticService.CreateStat(input)
+func (r *mutationResolver) CreateTaskStatistic(ctx context.Context, input model.NewTaskStatistic) (*model.TaskStatistic, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) CreateGoal(ctx context.Context, input model.NewGoal) (*model.Goal, error) {
+	return r.goalService.CreateGoal(input)
 }
 
 func (r *queryResolver) CategoriesList(ctx context.Context) ([]*model.Category, error) {
 	return r.categoryService.List()
 }
 
-func (r *queryResolver) TaskListByCategory(ctx context.Context, categoryID int) ([]*model.Task, error) {
-	return r.taskService.TaskListByCategory(categoryID)
+func (r *queryResolver) Task(ctx context.Context, id int) (*model.Task, error) {
+	return r.taskService.GetTask(id)
 }
 
 func (r *queryResolver) TaskList(ctx context.Context) ([]*model.Task, error) {
 	return r.taskService.TaskList()
 }
 
-func (r *queryResolver) Task(ctx context.Context, id int) (*model.Task, error) {
-	return r.taskService.GetTask(id)
+func (r *queryResolver) TaskListByCategory(ctx context.Context, categoryID int) ([]*model.Task, error) {
+	return r.taskService.TaskListByCategory(categoryID)
 }
 
-func (r *queryResolver) StatListByDate(ctx context.Context, date string) ([]*model.Statistic, error) {
+func (r *queryResolver) Goal(ctx context.Context, id int) (*model.Goal, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GoalList(ctx context.Context) ([]*model.Goal, error) {
+	return r.goalService.GoalList()
+}
+
+func (r *queryResolver) StatListByDate(ctx context.Context, date string) ([]*model.TaskStatistic, error) {
 	return r.statisticService.StatListByDate(date)
 }
 
@@ -77,7 +94,7 @@ func (r *taskResolver) TotalTimeForLast(ctx context.Context, obj *model.Task, da
 	return r.statisticService.CalcTotalTimeFor(obj.ID, days, hours)
 }
 
-func (r *taskResolver) LastStat(ctx context.Context, obj *model.Task) (*model.Statistic, error) {
+func (r *taskResolver) LastStat(ctx context.Context, obj *model.Task) (*model.TaskStatistic, error) {
 	data, err := r.statisticService.LastStatRecord(obj.ID)
 	if err != nil {
 		log.Error(err)
@@ -89,6 +106,9 @@ func (r *taskResolver) LastStat(ctx context.Context, obj *model.Task) (*model.St
 // Category returns generated.CategoryResolver implementation.
 func (r *Resolver) Category() generated.CategoryResolver { return &categoryResolver{r} }
 
+// Goal returns generated.GoalResolver implementation.
+func (r *Resolver) Goal() generated.GoalResolver { return &goalResolver{r} }
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
@@ -99,6 +119,7 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 func (r *Resolver) Task() generated.TaskResolver { return &taskResolver{r} }
 
 type categoryResolver struct{ *Resolver }
+type goalResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type taskResolver struct{ *Resolver }

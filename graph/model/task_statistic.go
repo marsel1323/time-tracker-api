@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-type Statistic struct {
+type TaskStatistic struct {
 	ID           int        `json:"id"`
 	TaskID       int        `json:"taskId"`
 	Milliseconds int        `json:"milliseconds"`

@@ -7,24 +7,24 @@ import (
 	"time"
 )
 
-type ITaskRepository interface {
+type TaskRepository interface {
 	Create(task *model.NewTask) (*model.Task, error)
 	List() ([]*model.Task, error)
 	ListByCategory(categoryId int) ([]*model.Task, error)
 	Get(id int) (*model.Task, error)
 }
 
-type TaskRepository struct {
+type taskRepository struct {
 	db *sql.DB
 }
 
-func NewTaskRepository(db *sql.DB) *TaskRepository {
-	return &TaskRepository{
+func NewTaskRepository(db *sql.DB) *taskRepository {
+	return &taskRepository{
 		db: db,
 	}
 }
 
-func (repo *TaskRepository) Create(newTask *model.NewTask) (*model.Task, error) {
+func (repo *taskRepository) Create(newTask *model.NewTask) (*model.Task, error) {
 	query := `
 		INSERT INTO task (name, category_id)
 		VALUES ($1, $2)
@@ -36,10 +36,9 @@ func (repo *TaskRepository) Create(newTask *model.NewTask) (*model.Task, error) 
 
 	var task model.Task
 
-	err := repo.db.QueryRowContext(ctx, query, newTask.Name, newTask.CategoryID).Scan(
+	err := repo.db.QueryRowContext(ctx, query, newTask.Name).Scan(
 		&task.ID,
 		&task.Name,
-		&task.CategoryID,
 		&task.CreatedAt,
 		&task.UpdatedAt,
 	)
@@ -50,7 +49,7 @@ func (repo *TaskRepository) Create(newTask *model.NewTask) (*model.Task, error) 
 	return &task, nil
 }
 
-func (repo *TaskRepository) List() ([]*model.Task, error) {
+func (repo *taskRepository) List() ([]*model.Task, error) {
 	query := `
 		SELECT id, name, created_at, updated_at
 		FROM task
@@ -92,7 +91,7 @@ func (repo *TaskRepository) List() ([]*model.Task, error) {
 	return tasks, nil
 }
 
-func (repo *TaskRepository) ListByCategory(categoryId int) ([]*model.Task, error) {
+func (repo *taskRepository) ListByCategory(categoryId int) ([]*model.Task, error) {
 	query := `
 		SELECT id, name, category_id, created_at, updated_at
 		FROM task
@@ -134,7 +133,7 @@ func (repo *TaskRepository) ListByCategory(categoryId int) ([]*model.Task, error
 	return tasks, nil
 }
 
-func (repo *TaskRepository) Get(id int) (*model.Task, error) {
+func (repo *taskRepository) Get(id int) (*model.Task, error) {
 	query := `
 		SELECT id, name, created_at, updated_at
 		FROM task

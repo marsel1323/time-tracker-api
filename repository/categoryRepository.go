@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type ICategoryRepository interface {
+type CategoryRepository interface {
 	Create(category model.NewCategory) (*model.Category, error)
 	List() ([]*model.Category, error)
 
@@ -15,17 +15,17 @@ type ICategoryRepository interface {
 	TodayTime(categoryId int) (int, error)
 }
 
-type CategoryRepository struct {
+type categoryRepository struct {
 	db *sql.DB
 }
 
-func NewCategoryRepository(db *sql.DB) *CategoryRepository {
-	return &CategoryRepository{
+func NewCategoryRepository(db *sql.DB) *categoryRepository {
+	return &categoryRepository{
 		db: db,
 	}
 }
 
-func (repo *CategoryRepository) Create(newCategory model.NewCategory) (*model.Category, error) {
+func (repo *categoryRepository) Create(newCategory model.NewCategory) (*model.Category, error) {
 	query := `
 		INSERT INTO categories (name)
 		VALUES ($1)
@@ -49,7 +49,7 @@ func (repo *CategoryRepository) Create(newCategory model.NewCategory) (*model.Ca
 	return &category, nil
 }
 
-func (repo *CategoryRepository) List() ([]*model.Category, error) {
+func (repo *categoryRepository) List() ([]*model.Category, error) {
 	query := `
 		SELECT id, name
 		FROM categories
@@ -88,7 +88,7 @@ func (repo *CategoryRepository) List() ([]*model.Category, error) {
 	return categories, nil
 }
 
-func (repo *CategoryRepository) TotalTime(categoryId int) (int, error) {
+func (repo *categoryRepository) TotalTime(categoryId int) (int, error) {
 	query := `
 		SELECT coalesce(sum(s.milliseconds), 0)
 		FROM task LEFT JOIN stats s on task.id = s.task_id
@@ -109,7 +109,7 @@ func (repo *CategoryRepository) TotalTime(categoryId int) (int, error) {
 	return sum, nil
 }
 
-func (repo *CategoryRepository) TodayTime(categoryId int) (int, error) {
+func (repo *categoryRepository) TodayTime(categoryId int) (int, error) {
 	query := `
 		SELECT coalesce(sum(s.milliseconds), 0)
 		FROM task LEFT JOIN stats s on task.id = s.task_id
