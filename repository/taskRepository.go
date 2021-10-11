@@ -51,8 +51,9 @@ func (repo *taskRepository) Create(newTask *model.NewTask) (*model.Task, error) 
 
 func (repo *taskRepository) List() ([]*model.Task, error) {
 	query := `
-		SELECT id, name, created_at, updated_at
+		SELECT id, name, done, created_at, updated_at
 		FROM task
+		WHERE done = false
 		ORDER BY id;
 	`
 
@@ -73,6 +74,7 @@ func (repo *taskRepository) List() ([]*model.Task, error) {
 		err := rows.Scan(
 			&task.ID,
 			&task.Name,
+			&task.Done,
 			&task.CreatedAt,
 			&task.UpdatedAt,
 		)

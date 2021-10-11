@@ -14,6 +14,7 @@ type Category {
 type Task {
     id: Int!
     name: String!
+    done: Boolean!
     createdAt: Time
     updatedAt: Time
 
