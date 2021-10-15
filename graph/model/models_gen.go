@@ -8,12 +8,13 @@ type NewCategory struct {
 
 type NewGoal struct {
 	Name       string `json:"name"`
-	CategoryID int    `json:"categoryId"`
+	CategoryID int    `json:"categoryID"`
 	Time       int    `json:"time"`
 }
 
 type NewTask struct {
-	Name string `json:"name"`
+	Name       string `json:"name"`
+	CategoryID int    `json:"categoryID"`
 }
 
 type NewTaskStatistic struct {

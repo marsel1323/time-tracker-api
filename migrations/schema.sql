@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 12.6
--- Dumped by pg_dump version 12.6
+-- Dumped from database version 12.8
+-- Dumped by pg_dump version 12.8
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -35,7 +35,7 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: categories; Type: TABLE; Schema: public; Owner: time_tracker
+-- Name: categories; Type: TABLE; Schema: public; Owner: marsel
 --
 
 CREATE TABLE public.categories (
@@ -46,10 +46,10 @@ CREATE TABLE public.categories (
 );
 
 
-ALTER TABLE public.categories OWNER TO time_tracker;
+ALTER TABLE public.categories OWNER TO marsel;
 
 --
--- Name: categories_id_seq; Type: SEQUENCE; Schema: public; Owner: time_tracker
+-- Name: categories_id_seq; Type: SEQUENCE; Schema: public; Owner: marsel
 --
 
 CREATE SEQUENCE public.categories_id_seq
@@ -60,17 +60,17 @@ CREATE SEQUENCE public.categories_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.categories_id_seq OWNER TO time_tracker;
+ALTER TABLE public.categories_id_seq OWNER TO marsel;
 
 --
--- Name: categories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: time_tracker
+-- Name: categories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: marsel
 --
 
 ALTER SEQUENCE public.categories_id_seq OWNED BY public.categories.id;
 
 
 --
--- Name: goal_statistics; Type: TABLE; Schema: public; Owner: time_tracker
+-- Name: goal_statistics; Type: TABLE; Schema: public; Owner: marsel
 --
 
 CREATE TABLE public.goal_statistics (
@@ -82,10 +82,10 @@ CREATE TABLE public.goal_statistics (
 );
 
 
-ALTER TABLE public.goal_statistics OWNER TO time_tracker;
+ALTER TABLE public.goal_statistics OWNER TO marsel;
 
 --
--- Name: goal_statistics_id_seq; Type: SEQUENCE; Schema: public; Owner: time_tracker
+-- Name: goal_statistics_id_seq; Type: SEQUENCE; Schema: public; Owner: marsel
 --
 
 CREATE SEQUENCE public.goal_statistics_id_seq
@@ -96,17 +96,17 @@ CREATE SEQUENCE public.goal_statistics_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.goal_statistics_id_seq OWNER TO time_tracker;
+ALTER TABLE public.goal_statistics_id_seq OWNER TO marsel;
 
 --
--- Name: goal_statistics_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: time_tracker
+-- Name: goal_statistics_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: marsel
 --
 
 ALTER SEQUENCE public.goal_statistics_id_seq OWNED BY public.goal_statistics.id;
 
 
 --
--- Name: goals; Type: TABLE; Schema: public; Owner: time_tracker
+-- Name: goals; Type: TABLE; Schema: public; Owner: marsel
 --
 
 CREATE TABLE public.goals (
@@ -121,10 +121,10 @@ CREATE TABLE public.goals (
 );
 
 
-ALTER TABLE public.goals OWNER TO time_tracker;
+ALTER TABLE public.goals OWNER TO marsel;
 
 --
--- Name: goals_id_seq; Type: SEQUENCE; Schema: public; Owner: time_tracker
+-- Name: goals_id_seq; Type: SEQUENCE; Schema: public; Owner: marsel
 --
 
 CREATE SEQUENCE public.goals_id_seq
@@ -135,10 +135,10 @@ CREATE SEQUENCE public.goals_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.goals_id_seq OWNER TO time_tracker;
+ALTER TABLE public.goals_id_seq OWNER TO marsel;
 
 --
--- Name: goals_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: time_tracker
+-- Name: goals_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: marsel
 --
 
 ALTER SEQUENCE public.goals_id_seq OWNED BY public.goals.id;
@@ -156,19 +156,7 @@ CREATE TABLE public.schema_migration (
 ALTER TABLE public.schema_migration OWNER TO marsel;
 
 --
--- Name: schema_migrations; Type: TABLE; Schema: public; Owner: time_tracker
---
-
-CREATE TABLE public.schema_migrations (
-    version bigint NOT NULL,
-    dirty boolean NOT NULL
-);
-
-
-ALTER TABLE public.schema_migrations OWNER TO time_tracker;
-
---
--- Name: stats; Type: TABLE; Schema: public; Owner: time_tracker
+-- Name: stats; Type: TABLE; Schema: public; Owner: marsel
 --
 
 CREATE TABLE public.stats (
@@ -180,10 +168,10 @@ CREATE TABLE public.stats (
 );
 
 
-ALTER TABLE public.stats OWNER TO time_tracker;
+ALTER TABLE public.stats OWNER TO marsel;
 
 --
--- Name: stats_id_seq; Type: SEQUENCE; Schema: public; Owner: time_tracker
+-- Name: stats_id_seq; Type: SEQUENCE; Schema: public; Owner: marsel
 --
 
 CREATE SEQUENCE public.stats_id_seq
@@ -194,17 +182,17 @@ CREATE SEQUENCE public.stats_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.stats_id_seq OWNER TO time_tracker;
+ALTER TABLE public.stats_id_seq OWNER TO marsel;
 
 --
--- Name: stats_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: time_tracker
+-- Name: stats_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: marsel
 --
 
 ALTER SEQUENCE public.stats_id_seq OWNED BY public.stats.id;
 
 
 --
--- Name: task; Type: TABLE; Schema: public; Owner: time_tracker
+-- Name: task; Type: TABLE; Schema: public; Owner: marsel
 --
 
 CREATE TABLE public.task (
@@ -212,14 +200,36 @@ CREATE TABLE public.task (
     name text NOT NULL,
     created_at timestamp(0) with time zone DEFAULT now() NOT NULL,
     updated_at timestamp(0) with time zone DEFAULT now() NOT NULL,
+    category_id bigint NOT NULL,
     done boolean DEFAULT false
 );
 
 
-ALTER TABLE public.task OWNER TO time_tracker;
+ALTER TABLE public.task OWNER TO marsel;
 
 --
--- Name: task_id_seq; Type: SEQUENCE; Schema: public; Owner: time_tracker
+-- Name: task_category_id_seq; Type: SEQUENCE; Schema: public; Owner: marsel
+--
+
+CREATE SEQUENCE public.task_category_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.task_category_id_seq OWNER TO marsel;
+
+--
+-- Name: task_category_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: marsel
+--
+
+ALTER SEQUENCE public.task_category_id_seq OWNED BY public.task.category_id;
+
+
+--
+-- Name: task_id_seq; Type: SEQUENCE; Schema: public; Owner: marsel
 --
 
 CREATE SEQUENCE public.task_id_seq
@@ -230,52 +240,59 @@ CREATE SEQUENCE public.task_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.task_id_seq OWNER TO time_tracker;
+ALTER TABLE public.task_id_seq OWNER TO marsel;
 
 --
--- Name: task_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: time_tracker
+-- Name: task_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: marsel
 --
 
 ALTER SEQUENCE public.task_id_seq OWNED BY public.task.id;
 
 
 --
--- Name: categories id; Type: DEFAULT; Schema: public; Owner: time_tracker
+-- Name: categories id; Type: DEFAULT; Schema: public; Owner: marsel
 --
 
 ALTER TABLE ONLY public.categories ALTER COLUMN id SET DEFAULT nextval('public.categories_id_seq'::regclass);
 
 
 --
--- Name: goal_statistics id; Type: DEFAULT; Schema: public; Owner: time_tracker
+-- Name: goal_statistics id; Type: DEFAULT; Schema: public; Owner: marsel
 --
 
 ALTER TABLE ONLY public.goal_statistics ALTER COLUMN id SET DEFAULT nextval('public.goal_statistics_id_seq'::regclass);
 
 
 --
--- Name: goals id; Type: DEFAULT; Schema: public; Owner: time_tracker
+-- Name: goals id; Type: DEFAULT; Schema: public; Owner: marsel
 --
 
 ALTER TABLE ONLY public.goals ALTER COLUMN id SET DEFAULT nextval('public.goals_id_seq'::regclass);
 
 
 --
--- Name: stats id; Type: DEFAULT; Schema: public; Owner: time_tracker
+-- Name: stats id; Type: DEFAULT; Schema: public; Owner: marsel
 --
 
 ALTER TABLE ONLY public.stats ALTER COLUMN id SET DEFAULT nextval('public.stats_id_seq'::regclass);
 
 
 --
--- Name: task id; Type: DEFAULT; Schema: public; Owner: time_tracker
+-- Name: task id; Type: DEFAULT; Schema: public; Owner: marsel
 --
 
 ALTER TABLE ONLY public.task ALTER COLUMN id SET DEFAULT nextval('public.task_id_seq'::regclass);
 
 
 --
--- Name: categories categories_name_key; Type: CONSTRAINT; Schema: public; Owner: time_tracker
+-- Name: task category_id; Type: DEFAULT; Schema: public; Owner: marsel
+--
+
+ALTER TABLE ONLY public.task ALTER COLUMN category_id SET DEFAULT nextval('public.task_category_id_seq'::regclass);
+
+
+--
+-- Name: categories categories_name_key; Type: CONSTRAINT; Schema: public; Owner: marsel
 --
 
 ALTER TABLE ONLY public.categories
@@ -283,7 +300,7 @@ ALTER TABLE ONLY public.categories
 
 
 --
--- Name: categories categories_pkey; Type: CONSTRAINT; Schema: public; Owner: time_tracker
+-- Name: categories categories_pkey; Type: CONSTRAINT; Schema: public; Owner: marsel
 --
 
 ALTER TABLE ONLY public.categories
@@ -291,7 +308,7 @@ ALTER TABLE ONLY public.categories
 
 
 --
--- Name: goal_statistics goal_statistics_pkey; Type: CONSTRAINT; Schema: public; Owner: time_tracker
+-- Name: goal_statistics goal_statistics_pkey; Type: CONSTRAINT; Schema: public; Owner: marsel
 --
 
 ALTER TABLE ONLY public.goal_statistics
@@ -299,7 +316,7 @@ ALTER TABLE ONLY public.goal_statistics
 
 
 --
--- Name: goals goals_name_key; Type: CONSTRAINT; Schema: public; Owner: time_tracker
+-- Name: goals goals_name_key; Type: CONSTRAINT; Schema: public; Owner: marsel
 --
 
 ALTER TABLE ONLY public.goals
@@ -307,7 +324,7 @@ ALTER TABLE ONLY public.goals
 
 
 --
--- Name: goals goals_pkey; Type: CONSTRAINT; Schema: public; Owner: time_tracker
+-- Name: goals goals_pkey; Type: CONSTRAINT; Schema: public; Owner: marsel
 --
 
 ALTER TABLE ONLY public.goals
@@ -315,15 +332,7 @@ ALTER TABLE ONLY public.goals
 
 
 --
--- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: time_tracker
---
-
-ALTER TABLE ONLY public.schema_migrations
-    ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
-
-
---
--- Name: stats stats_pkey; Type: CONSTRAINT; Schema: public; Owner: time_tracker
+-- Name: stats stats_pkey; Type: CONSTRAINT; Schema: public; Owner: marsel
 --
 
 ALTER TABLE ONLY public.stats
@@ -331,7 +340,7 @@ ALTER TABLE ONLY public.stats
 
 
 --
--- Name: task task_pkey; Type: CONSTRAINT; Schema: public; Owner: time_tracker
+-- Name: task task_pkey; Type: CONSTRAINT; Schema: public; Owner: marsel
 --
 
 ALTER TABLE ONLY public.task
@@ -346,7 +355,7 @@ CREATE UNIQUE INDEX schema_migration_version_idx ON public.schema_migration USIN
 
 
 --
--- Name: goal_statistics goal_statistics_goal_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: time_tracker
+-- Name: goal_statistics goal_statistics_goal_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: marsel
 --
 
 ALTER TABLE ONLY public.goal_statistics
@@ -354,7 +363,7 @@ ALTER TABLE ONLY public.goal_statistics
 
 
 --
--- Name: goals goals_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: time_tracker
+-- Name: goals goals_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: marsel
 --
 
 ALTER TABLE ONLY public.goals
@@ -362,11 +371,19 @@ ALTER TABLE ONLY public.goals
 
 
 --
--- Name: stats stats_task_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: time_tracker
+-- Name: stats stats_task_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: marsel
 --
 
 ALTER TABLE ONLY public.stats
     ADD CONSTRAINT stats_task_id_fkey FOREIGN KEY (task_id) REFERENCES public.task(id) ON DELETE CASCADE;
+
+
+--
+-- Name: task task_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: marsel
+--
+
+ALTER TABLE ONLY public.task
+    ADD CONSTRAINT task_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(id);
 
 
 --

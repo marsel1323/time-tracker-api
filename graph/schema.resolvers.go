@@ -6,10 +6,10 @@ package graph
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/marsel1323/timetrackerapi/graph/generated"
 	"github.com/marsel1323/timetrackerapi/graph/model"
-	"github.com/opentracing/opentracing-go/log"
 )
 
 func (r *categoryResolver) TotalTime(ctx context.Context, obj *model.Category) (int, error) {
@@ -39,7 +39,11 @@ func (r *mutationResolver) CreateCategory(ctx context.Context, input model.NewCa
 }
 
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
-	return r.taskService.CreateTask(&input)
+	task, err := r.taskService.CreateTask(&input)
+	if err != nil {
+		log.Println(err)
+	}
+	return task, err
 }
 
 func (r *mutationResolver) CreateTaskStatistic(ctx context.Context, input model.NewTaskStatistic) (*model.TaskStatistic, error) {
@@ -59,11 +63,19 @@ func (r *queryResolver) Task(ctx context.Context, id int) (*model.Task, error) {
 }
 
 func (r *queryResolver) TaskList(ctx context.Context) ([]*model.Task, error) {
-	return r.taskService.TaskList()
+	taskList, err := r.taskService.TaskList()
+	if err != nil {
+		log.Println(err)
+	}
+	return taskList, err
 }
 
 func (r *queryResolver) TaskListByCategory(ctx context.Context, categoryID int) ([]*model.Task, error) {
-	return r.taskService.TaskListByCategory(categoryID)
+	taskList, err := r.taskService.TaskListByCategory(categoryID)
+	if err != nil {
+		log.Println(err)
+	}
+	return taskList, err
 }
 
 func (r *queryResolver) Goal(ctx context.Context, id int) (*model.Goal, error) {
@@ -76,6 +88,10 @@ func (r *queryResolver) GoalList(ctx context.Context) ([]*model.Goal, error) {
 
 func (r *queryResolver) StatListByDate(ctx context.Context, date string) ([]*model.TaskStatistic, error) {
 	return r.statisticService.StatListByDate(date)
+}
+
+func (r *taskResolver) Category(ctx context.Context, obj *model.Task) (*model.Category, error) {
+	panic(fmt.Errorf("not implemented"))
 }
 
 func (r *taskResolver) TotalMs(ctx context.Context, obj *model.Task) (*int, error) {
@@ -97,7 +113,7 @@ func (r *taskResolver) TotalTimeForLast(ctx context.Context, obj *model.Task, da
 func (r *taskResolver) LastStat(ctx context.Context, obj *model.Task) (*model.TaskStatistic, error) {
 	data, err := r.statisticService.LastStatRecord(obj.ID)
 	if err != nil {
-		log.Error(err)
+		log.Println(err)
 		return nil, nil
 	}
 	return data, nil

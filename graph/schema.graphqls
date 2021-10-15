@@ -14,10 +14,12 @@ type Category {
 type Task {
     id: Int!
     name: String!
+    categoryID: Int!
     done: Boolean!
     createdAt: Time
     updatedAt: Time
 
+    category: Category
     totalMs: Int
     totalToday: Int
     totalTimeFor(day: String!): Int!
@@ -37,7 +39,7 @@ type Goal {
     id: Int!
     name: String!
     time: Int!
-    categoryId: Int!
+    categoryID: Int!
     createdAt: Time
     updatedAt: Time
 
@@ -57,7 +59,7 @@ type Query {
 
     task(id: Int!): Task!
     taskList: [Task!]!
-    taskListByCategory(categoryId: Int!): [Task!]!
+    taskListByCategory(categoryID: Int!): [Task!]!
 
     goal(id: Int!): Goal!
     goalList: [Goal!]!
@@ -71,6 +73,7 @@ input NewCategory {
 
 input NewTask {
     name: String!
+    categoryID: Int!
 }
 
 input NewTaskStatistic {
@@ -80,7 +83,7 @@ input NewTaskStatistic {
 
 input NewGoal {
     name: String!
-    categoryId: Int!
+    categoryID: Int!
     time: Int!
 }
 

@@ -90,6 +90,8 @@ type ComplexityRoot struct {
 	}
 
 	Task struct {
+		Category         func(childComplexity int) int
+		CategoryID       func(childComplexity int) int
 		CreatedAt        func(childComplexity int) int
 		Done             func(childComplexity int) int
 		ID               func(childComplexity int) int
@@ -134,6 +136,7 @@ type QueryResolver interface {
 	StatListByDate(ctx context.Context, date string) ([]*model.TaskStatistic, error)
 }
 type TaskResolver interface {
+	Category(ctx context.Context, obj *model.Task) (*model.Category, error)
 	TotalMs(ctx context.Context, obj *model.Task) (*int, error)
 	TotalToday(ctx context.Context, obj *model.Task) (*int, error)
 	TotalTimeFor(ctx context.Context, obj *model.Task, day string) (int, error)
@@ -184,7 +187,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Category.TotalTime(childComplexity), true
 
-	case "Goal.categoryId":
+	case "Goal.categoryID":
 		if e.complexity.Goal.CategoryID == nil {
 			break
 		}
@@ -383,7 +386,21 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.TaskListByCategory(childComplexity, args["categoryId"].(int)), true
+		return e.complexity.Query.TaskListByCategory(childComplexity, args["categoryID"].(int)), true
+
+	case "Task.category":
+		if e.complexity.Task.Category == nil {
+			break
+		}
+
+		return e.complexity.Task.Category(childComplexity), true
+
+	case "Task.categoryID":
+		if e.complexity.Task.CategoryID == nil {
+			break
+		}
+
+		return e.complexity.Task.CategoryID(childComplexity), true
 
 	case "Task.createdAt":
 		if e.complexity.Task.CreatedAt == nil {
@@ -580,10 +597,12 @@ type Category {
 type Task {
     id: Int!
     name: String!
+    categoryID: Int!
     done: Boolean!
     createdAt: Time
     updatedAt: Time
 
+    category: Category
     totalMs: Int
     totalToday: Int
     totalTimeFor(day: String!): Int!
@@ -603,7 +622,7 @@ type Goal {
     id: Int!
     name: String!
     time: Int!
-    categoryId: Int!
+    categoryID: Int!
     createdAt: Time
     updatedAt: Time
 
@@ -623,7 +642,7 @@ type Query {
 
     task(id: Int!): Task!
     taskList: [Task!]!
-    taskListByCategory(categoryId: Int!): [Task!]!
+    taskListByCategory(categoryID: Int!): [Task!]!
 
     goal(id: Int!): Goal!
     goalList: [Goal!]!
@@ -637,6 +656,7 @@ input NewCategory {
 
 input NewTask {
     name: String!
+    categoryID: Int!
 }
 
 input NewTaskStatistic {
@@ -646,7 +666,7 @@ input NewTaskStatistic {
 
 input NewGoal {
     name: String!
-    categoryId: Int!
+    categoryID: Int!
     time: Int!
 }
 
@@ -772,14 +792,14 @@ func (ec *executionContext) field_Query_taskListByCategory_args(ctx context.Cont
 	var err error
 	args := map[string]interface{}{}
 	var arg0 int
-	if tmp, ok := rawArgs["categoryId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryId"))
+	if tmp, ok := rawArgs["categoryID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryID"))
 		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["categoryId"] = arg0
+	args["categoryID"] = arg0
 	return args, nil
 }
 
@@ -1120,7 +1140,7 @@ func (ec *executionContext) _Goal_time(ctx context.Context, field graphql.Collec
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Goal_categoryId(ctx context.Context, field graphql.CollectedField, obj *model.Goal) (ret graphql.Marshaler) {
+func (ec *executionContext) _Goal_categoryID(ctx context.Context, field graphql.CollectedField, obj *model.Goal) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1728,7 +1748,7 @@ func (ec *executionContext) _Query_taskListByCategory(ctx context.Context, field
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().TaskListByCategory(rctx, args["categoryId"].(int))
+		return ec.resolvers.Query().TaskListByCategory(rctx, args["categoryID"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2005,6 +2025,41 @@ func (ec *executionContext) _Task_name(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Task_categoryID(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Task",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CategoryID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Task_done(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -2102,6 +2157,38 @@ func (ec *executionContext) _Task_updatedAt(ctx context.Context, field graphql.C
 	res := resTmp.(*time.Time)
 	fc.Result = res
 	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Task_category(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Task",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Task().Category(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Category)
+	fc.Result = res
+	return ec.marshalOCategory2ᚖgithubᚗcomᚋmarsel1323ᚋtimetrackerapiᚋgraphᚋmodelᚐCategory(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Task_totalMs(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
@@ -3574,10 +3661,10 @@ func (ec *executionContext) unmarshalInputNewGoal(ctx context.Context, obj inter
 			if err != nil {
 				return it, err
 			}
-		case "categoryId":
+		case "categoryID":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryId"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryID"))
 			it.CategoryID, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
@@ -3607,6 +3694,14 @@ func (ec *executionContext) unmarshalInputNewTask(ctx context.Context, obj inter
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "categoryID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryID"))
+			it.CategoryID, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3738,8 +3833,8 @@ func (ec *executionContext) _Goal(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "categoryId":
-			out.Values[i] = ec._Goal_categoryId(ctx, field, obj)
+		case "categoryID":
+			out.Values[i] = ec._Goal_categoryID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
@@ -4008,6 +4103,11 @@ func (ec *executionContext) _Task(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "categoryID":
+			out.Values[i] = ec._Task_categoryID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "done":
 			out.Values[i] = ec._Task_done(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -4017,6 +4117,17 @@ func (ec *executionContext) _Task(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Task_createdAt(ctx, field, obj)
 		case "updatedAt":
 			out.Values[i] = ec._Task_updatedAt(ctx, field, obj)
+		case "category":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Task_category(ctx, field, obj)
+				return res
+			})
 		case "totalMs":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -4895,6 +5006,13 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	return graphql.MarshalBoolean(*v)
+}
+
+func (ec *executionContext) marshalOCategory2ᚖgithubᚗcomᚋmarsel1323ᚋtimetrackerapiᚋgraphᚋmodelᚐCategory(ctx context.Context, sel ast.SelectionSet, v *model.Category) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Category(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
