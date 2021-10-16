@@ -9,6 +9,7 @@ import (
 
 type TaskRepository interface {
 	Create(task *model.NewTask) (*model.Task, error)
+	Update(task *model.UpdateTask) (bool, error)
 	List() ([]*model.Task, error)
 	ListByCategory(categoryId int) ([]*model.Task, error)
 	Get(id int) (*model.Task, error)
@@ -48,6 +49,24 @@ func (repo *taskRepository) Create(newTask *model.NewTask) (*model.Task, error) 
 	}
 
 	return &task, nil
+}
+
+func (repo *taskRepository) Update(input *model.UpdateTask) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	statement := `
+		UPDATE task
+		SET done = $2
+		WHERE id = $1;
+	`
+
+	_, err := repo.db.ExecContext(ctx, statement, input.ID, input.Done)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (repo *taskRepository) List() ([]*model.Task, error) {
@@ -106,13 +125,14 @@ func (repo *taskRepository) ListByCategory(categoryID int) ([]*model.Task, error
 		query = `
 			SELECT id, name, category_id, created_at, updated_at
 			FROM task
+			WHERE done = false
 			ORDER BY id;
 		`
 	} else {
 		query = `
 			SELECT id, name, category_id, created_at, updated_at
 			FROM task
-			WHERE category_id = $1
+			WHERE category_id = $1 AND done = false
 			ORDER BY id;
 		`
 		args = []interface{}{categoryID}

@@ -46,6 +46,14 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 	return task, err
 }
 
+func (r *mutationResolver) UpdateTask(ctx context.Context, input model.UpdateTask) (bool, error) {
+	updated, err := r.taskService.UpdateTask(&input)
+	if err != nil {
+		log.Println(err)
+	}
+	return updated, err
+}
+
 func (r *mutationResolver) CreateTaskStatistic(ctx context.Context, input model.NewTaskStatistic) (*model.TaskStatistic, error) {
 	return r.statisticService.CreateStat(input)
 }

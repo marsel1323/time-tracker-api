@@ -21,3 +21,8 @@ type NewTaskStatistic struct {
 	TaskID int `json:"taskId"`
 	Ms     int `json:"ms"`
 }
+
+type UpdateTask struct {
+	ID   int   `json:"ID"`
+	Done *bool `json:"done"`
+}

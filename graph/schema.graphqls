@@ -87,9 +87,17 @@ input NewGoal {
     time: Int!
 }
 
+input UpdateTask {
+    ID: Int!
+    done: Boolean
+}
+
 type Mutation {
     createCategory(input: NewCategory!): Category!
+
     createTask(input: NewTask!): Task!
+    updateTask(input: UpdateTask!): Boolean!
     createTaskStatistic(input: NewTaskStatistic!): TaskStatistic!
+
     createGoal(input: NewGoal!): Goal!
 }

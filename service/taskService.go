@@ -7,6 +7,7 @@ import (
 
 type TaskService interface {
 	CreateTask(input *model.NewTask) (*model.Task, error)
+	UpdateTask(input *model.UpdateTask) (bool, error)
 	TaskList() ([]*model.Task, error)
 	TaskListByCategory(categoryId int) ([]*model.Task, error)
 	GetTask(id int) (*model.Task, error)
@@ -24,6 +25,10 @@ func NewTaskService(repo repository.TaskRepository) *taskService {
 
 func (s *taskService) CreateTask(input *model.NewTask) (*model.Task, error) {
 	return s.repo.Create(input)
+}
+
+func (s *taskService) UpdateTask(input *model.UpdateTask) (bool, error) {
+	return s.repo.Update(input)
 }
 
 func (s *taskService) TaskList() ([]*model.Task, error) {
