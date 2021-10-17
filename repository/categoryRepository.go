@@ -13,6 +13,7 @@ type CategoryRepository interface {
 
 	TotalTime(categoryId int) (int, error)
 	TodayTime(categoryId int) (int, error)
+	TimeByDate(categoryId int, date *string) (int, error)
 }
 
 type categoryRepository struct {
@@ -124,6 +125,41 @@ func (repo *categoryRepository) TodayTime(categoryId int) (int, error) {
 	currentTime := time.Now().Format("2006-01-02")
 
 	err := repo.db.QueryRowContext(ctx, query, categoryId, currentTime).Scan(&sum)
+	if err != nil {
+		return 0, err
+	}
+
+	return sum, nil
+}
+
+func (repo *categoryRepository) TimeByDate(categoryId int, date *string) (int, error) {
+	query := `
+		SELECT coalesce(sum(s.milliseconds), 0)
+		FROM task LEFT JOIN stats s on task.id = s.task_id
+		WHERE category_id = $1 AND s.created_at::date = $2
+		GROUP BY task.category_id;
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var sum = 0
+
+	var today string
+
+	if date == nil {
+		today = time.Now().Format("2006-01-02")
+	} else {
+		today = *date
+	}
+
+	parsedDate, err := time.Parse("2006-01-02", today)
+	if err != nil {
+		//parsedDate = time.Now()//.Format("2006-01-02")
+		return 0, err
+	}
+
+	err = repo.db.QueryRowContext(ctx, query, categoryId, parsedDate).Scan(&sum)
 	if err != nil {
 		return 0, err
 	}

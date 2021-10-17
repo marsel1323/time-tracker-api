@@ -246,7 +246,6 @@ func (repo *statisticRepository) TaskTotalTimeForDay(taskId int, day string) (in
 
 	var sum int
 
-	// currentTime := time.Now().Format("2006-01-02")
 	date, err := time.Parse("2006-01-02", day)
 	if err != nil {
 		return 0, err

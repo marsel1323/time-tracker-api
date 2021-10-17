@@ -9,6 +9,7 @@ type Category {
 
     totalTime: Int!
     todayTime: Int!
+    timeByDate(date: String): Int!
 }
 
 type Task {

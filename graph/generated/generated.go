@@ -48,10 +48,11 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Category struct {
-		ID        func(childComplexity int) int
-		Name      func(childComplexity int) int
-		TodayTime func(childComplexity int) int
-		TotalTime func(childComplexity int) int
+		ID         func(childComplexity int) int
+		Name       func(childComplexity int) int
+		TimeByDate func(childComplexity int, date *string) int
+		TodayTime  func(childComplexity int) int
+		TotalTime  func(childComplexity int) int
 	}
 
 	Goal struct {
@@ -117,6 +118,7 @@ type ComplexityRoot struct {
 type CategoryResolver interface {
 	TotalTime(ctx context.Context, obj *model.Category) (int, error)
 	TodayTime(ctx context.Context, obj *model.Category) (int, error)
+	TimeByDate(ctx context.Context, obj *model.Category, date *string) (int, error)
 }
 type GoalResolver interface {
 	TodayMs(ctx context.Context, obj *model.Goal) (int, error)
@@ -174,6 +176,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Category.Name(childComplexity), true
+
+	case "Category.timeByDate":
+		if e.complexity.Category.TimeByDate == nil {
+			break
+		}
+
+		args, err := ec.field_Category_timeByDate_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Category.TimeByDate(childComplexity, args["date"].(*string)), true
 
 	case "Category.todayTime":
 		if e.complexity.Category.TodayTime == nil {
@@ -606,6 +620,7 @@ type Category {
 
     totalTime: Int!
     todayTime: Int!
+    timeByDate(date: String): Int!
 }
 
 type Task {
@@ -704,6 +719,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Category_timeByDate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["date"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["date"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_createCategory_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -1056,6 +1086,48 @@ func (ec *executionContext) _Category_todayTime(ctx context.Context, field graph
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Category().TodayTime(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Category_timeByDate(ctx context.Context, field graphql.CollectedField, obj *model.Category) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Category",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Category_timeByDate_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Category().TimeByDate(rctx, obj, args["date"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3898,6 +3970,20 @@ func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet,
 					}
 				}()
 				res = ec._Category_todayTime(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "timeByDate":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Category_timeByDate(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

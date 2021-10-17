@@ -15,7 +15,7 @@ import (
 func (r *categoryResolver) TotalTime(ctx context.Context, obj *model.Category) (int, error) {
 	result, err := r.categoryService.TotalTime(obj.ID)
 	if err != nil {
-		//log.Error(err)
+		//log.Println(err)
 		return 0, nil
 	}
 	return result, nil
@@ -24,7 +24,17 @@ func (r *categoryResolver) TotalTime(ctx context.Context, obj *model.Category) (
 func (r *categoryResolver) TodayTime(ctx context.Context, obj *model.Category) (int, error) {
 	result, err := r.categoryService.TodayTime(obj.ID)
 	if err != nil {
-		//log.Error(err)
+		//log.Println(err)
+		return 0, nil
+	}
+	return result, nil
+}
+
+func (r *categoryResolver) TimeByDate(ctx context.Context, obj *model.Category, date *string) (int, error) {
+	//log.Println(obj.ID, *date)
+	result, err := r.categoryService.TimeByDate(obj.ID, date)
+	if err != nil {
+		// log.Println(err)
 		return 0, nil
 	}
 	return result, nil
@@ -41,7 +51,7 @@ func (r *mutationResolver) CreateCategory(ctx context.Context, input model.NewCa
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
 	task, err := r.taskService.CreateTask(&input)
 	if err != nil {
-		log.Println(err)
+		//log.Println(err)
 	}
 	return task, err
 }
@@ -49,7 +59,7 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 func (r *mutationResolver) UpdateTask(ctx context.Context, input model.UpdateTask) (bool, error) {
 	updated, err := r.taskService.UpdateTask(&input)
 	if err != nil {
-		log.Println(err)
+		//log.Println(err)
 	}
 	return updated, err
 }
@@ -71,19 +81,11 @@ func (r *queryResolver) Task(ctx context.Context, id int) (*model.Task, error) {
 }
 
 func (r *queryResolver) TaskList(ctx context.Context) ([]*model.Task, error) {
-	taskList, err := r.taskService.TaskList()
-	if err != nil {
-		log.Println(err)
-	}
-	return taskList, err
+	return r.taskService.TaskList()
 }
 
 func (r *queryResolver) TaskListByCategory(ctx context.Context, categoryID int) ([]*model.Task, error) {
-	taskList, err := r.taskService.TaskListByCategory(categoryID)
-	if err != nil {
-		log.Println(err)
-	}
-	return taskList, err
+	return r.taskService.TaskListByCategory(categoryID)
 }
 
 func (r *queryResolver) Goal(ctx context.Context, id int) (*model.Goal, error) {

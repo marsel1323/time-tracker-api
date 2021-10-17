@@ -11,6 +11,7 @@ type ICategoryService interface {
 
 	TotalTime(categoryId int) (int, error)
 	TodayTime(categoryId int) (int, error)
+	TimeByDate(categoryId int, date *string) (int, error)
 }
 
 type CategoryService struct {
@@ -37,4 +38,8 @@ func (s *CategoryService) TotalTime(categoryId int) (int, error) {
 
 func (s *CategoryService) TodayTime(categoryId int) (int, error) {
 	return s.repo.TodayTime(categoryId)
+}
+
+func (s *CategoryService) TimeByDate(categoryId int, date *string) (int, error) {
+	return s.repo.TimeByDate(categoryId, date)
 }
